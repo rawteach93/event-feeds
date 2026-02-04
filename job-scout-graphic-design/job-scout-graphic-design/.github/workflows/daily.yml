@@ -1,0 +1,34 @@
+name: Daily Job Alerts
+
+on:
+  schedule:
+    - cron: "0 8 * * *"   # Runs daily at 08:00 UTC
+  workflow_dispatch:      # 👈 Adds a manual run button
+
+jobs:
+  job-alerts:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repo
+        uses: actions/checkout@v3
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: "3.10"
+
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      - name: Run job alerts script
+        env:
+          SMTP_HOST: ${{ secrets.SMTP_HOST }}
+          SMTP_PORT: ${{ secrets.SMTP_PORT }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          MAIL_TO:   ${{ secrets.MAIL_TO }}
+        run: |
+          python scripts/job_alerts.py
